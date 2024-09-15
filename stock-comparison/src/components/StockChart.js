@@ -1,10 +1,11 @@
 // src/components/StockChart.js
 import React, { useContext, useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import 'chartjs-adapter-date-fns';
 import { TooltipContext } from './TooltipContext';
 
-Chart.register(...registerables);
+Chart.register(...registerables, zoomPlugin);
 
 const StockChart = ({ canvasId, datasets }) => {
     const chartRef = useRef(null);
@@ -75,6 +76,21 @@ const StockChart = ({ canvasId, datasets }) => {
                                 }));
                                 setTooltipData({ date, tooltipInfo });
                             }
+                        }
+                    },
+                    zoom: {
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
+                        },
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'x',
                         }
                     }
                 },

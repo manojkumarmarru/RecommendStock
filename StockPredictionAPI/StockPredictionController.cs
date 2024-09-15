@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.ML;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using StockPredictionAPI.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.ML;
-using Microsoft.ML.Data;
-using System.Collections.Generic;
-using StockPredictionAPI.Models; 
 
 [Route("api/[controller]")]
 [ApiController]
@@ -22,25 +24,42 @@ public class StockPredictionController : ControllerBase
     }
 
     [HttpGet("{symbol}")]
-    public async Task<IActionResult> GetPrediction(string symbol)
+    public async Task<IActionResult> GetStockPrediction(string symbol)
     {
-         // Load historical data
+        // Load historical data
         var historicalData = await LoadHistoricalData(symbol);
         if (historicalData == null || historicalData.Historical.Count == 0)
         {
             return BadRequest("No historical data available.");
         }
 
+        // Load EMA data
+        var emaData = await LoadEMAData(symbol);
+        if (emaData == null || emaData.Count == 0)
+        {
+            return BadRequest("No EMA data available.");
+        }
+
+        // Merge EMA data with historical data
+        foreach (var data in historicalData.Historical)
+        {
+            var ema = emaData.FirstOrDefault(e => e.Date == data.Date);
+            if (ema != null)
+            {
+                data.EMA = ema.EMA;
+            }
+        }
+
         // Convert historical data to IDataView
-        var data = mlContext.Data.LoadFromEnumerable(historicalData.Historical);
+        var dataView = mlContext.Data.LoadFromEnumerable(historicalData.Historical);
 
         // Define data preparation and model training pipeline
-        var pipeline = mlContext.Transforms.Concatenate("Features", "Open", "High", "Low", "Volume")
+        var pipeline = mlContext.Transforms.Concatenate("Features", "Open", "High", "Low", "Volume", "EMA")
             .Append(mlContext.Transforms.CopyColumns("Label", "Close"))
             .Append(mlContext.Regression.Trainers.Sdca(labelColumnName: "Label"));
 
         // Train the model
-        var model = pipeline.Fit(data);
+        var model = pipeline.Fit(dataView);
 
         // Predict the next day's closing price
         var predictionEngine = mlContext.Model.CreatePredictionEngine<HistoricalData, StockPrediction>(model);
@@ -64,12 +83,19 @@ public class StockPredictionController : ControllerBase
         return Ok(new { Symbol = symbol, Recommendation = recommendation });
     }
 
-        private async Task<HistoricalDataResponse> LoadHistoricalData(string symbol)
+    private async Task<HistoricalDataResponse> LoadHistoricalData(string symbol)
     {
         var response = await _httpClient.GetStringAsync($"https://financialmodelingprep.com/api/v3/historical-price-full/{symbol}?apikey={apiKey}");
         Console.WriteLine(response);
         var settings = new JsonSerializerSettings();
         settings.Converters.Add(new HistoricalDataConverter());
         return JsonConvert.DeserializeObject<HistoricalDataResponse>(response, settings);
+    }
+
+    private async Task<List<EMAData>> LoadEMAData(string symbol)
+    {
+        var response = await _httpClient.GetStringAsync($"https://financialmodelingprep.com/api/v3/technical_indicator/1day/{symbol}?type=ema&&period=10&apikey={apiKey}");
+        Console.WriteLine(response);
+        return JsonConvert.DeserializeObject<List<EMAData>>(response);
     }
 }

@@ -3,25 +3,29 @@ using Newtonsoft.Json.Linq;
 using StockPredictionAPI.Models;
 using System;
 
-public class HistoricalDataConverter : JsonConverter<HistoricalData>
+public class HistoricalDataConverter : JsonConverter
 {
-    public override HistoricalData ReadJson(JsonReader reader, Type objectType, HistoricalData existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override bool CanConvert(Type objectType)
     {
-        JObject obj = JObject.Load(reader);
-        var data = new HistoricalData
-        {
-            Date = (string)obj["date"],
-            Open = (float)obj["open"],
-            High = (float)obj["high"],
-            Low = (float)obj["low"],
-            Close = (float)obj["close"],
-            Volume = (float)obj["volume"]
-        };
-        
-        return data;
+        return objectType == typeof(HistoricalData);
     }
 
-    public override void WriteJson(JsonWriter writer, HistoricalData value, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    {
+        var jsonObject = JObject.Load(reader);
+        var historicalData = new HistoricalData
+        {
+            Date = (string)jsonObject["date"],
+            Open = (float)jsonObject["open"],
+            High = (float)jsonObject["high"],
+            Low = (float)jsonObject["low"],
+            Close = (float)jsonObject["close"],
+            Volume = (float)jsonObject["volume"]
+        };
+        return historicalData;
+    }
+
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
         throw new NotImplementedException();
     }
