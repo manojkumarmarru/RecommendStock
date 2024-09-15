@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "vXS0vIIpqX1kD0EQgUUE9qiLVj39rM1uYQw4z+IrnMk=",
+  "Source": "StockPredictionAPI",
+  "BasePath": "_content/StockPredictionAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

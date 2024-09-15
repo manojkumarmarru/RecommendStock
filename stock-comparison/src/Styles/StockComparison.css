@@ -1,0 +1,29 @@
+/* src/components/StockComparison.css */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 80vh; /* Use full viewport height */
+}
+
+.input-container {
+    margin-bottom: 20px;
+}
+
+.chart-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px; /* Reduce gap to save space */
+    width: 100%;
+    margin-top: 3vh;
+}
+
+.chart-container {
+    background: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 45vh; /* Adjust height to fit all charts within the viewport */
+    overflow: hidden;
+
+}
