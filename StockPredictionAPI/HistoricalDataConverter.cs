@@ -1,32 +1,27 @@
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using StockPredictionAPI.Models;
+using Newtonsoft.Json.Converters;
 using System;
+using System.Globalization;
 
-public class HistoricalDataConverter : JsonConverter
+namespace StockPredictionAPI.Models
 {
-    public override bool CanConvert(Type objectType)
+    public class HistoricalDataConverter : JsonConverter
     {
-        return objectType == typeof(HistoricalData);
-    }
-
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    {
-        var jsonObject = JObject.Load(reader);
-        var historicalData = new HistoricalData
+        public override bool CanConvert(Type objectType)
         {
-            Date = (string)jsonObject["date"],
-            Open = (float)jsonObject["open"],
-            High = (float)jsonObject["high"],
-            Low = (float)jsonObject["low"],
-            Close = (float)jsonObject["close"],
-            Volume = (float)jsonObject["volume"]
-        };
-        return historicalData;
-    }
+            return objectType == typeof(DateTime);
+        }
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-    {
-        throw new NotImplementedException();
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var dateString = reader.Value.ToString();
+            return DateTime.ParseExact(dateString, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var date = (DateTime)value;
+            writer.WriteValue(date.ToString("yyyy-MM-dd"));
+        }
     }
 }

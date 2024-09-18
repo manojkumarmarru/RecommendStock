@@ -1,18 +1,23 @@
-// src/components/StockComparison.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import StockChart from './StockChart';
 import { TooltipProvider } from './TooltipContext';
+import { Line } from 'react-chartjs-2'; // Import the Line component from react-chartjs-2
+import 'chart.js/auto';
 import '../Styles/StockComparison.css';
 
-const apiKey = 'fdBhj6FJhbAKaYyTh5fU3pwUvPY5X32E';
+const apiKey = 'jZ3KwctIb3G2e8zK4OTShjr5UpW3S53G';
 
-const fetchStockData = async (symbol) => {
+const fetchStock = async (symbol) => {
     const response = await axios.get(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?apikey=${apiKey}`);
     const data = response.data.historical;
     return data.map(entry => ({
-        x: entry.date,
-        y: entry.close
+        date: entry.date,
+        open: entry.open,
+        high: entry.high,
+        low: entry.low,
+        close: entry.close,
+        volume: entry.volume
     }));
 };
 
@@ -36,8 +41,50 @@ const fetchHistoricalRating = async (symbol) => {
 };
 
 const fetchPrediction = async (symbol) => {
-    const response = await axios.get(`https://curly-invention-q956vrpr5qj24wg5-5143.app.github.dev/api/StockPrediction/${symbol}`);
+    const response = await axios.get(`http://localhost:5143/api/StockPrediction/${symbol}`);
     return response.data;
+};
+
+const ComparisonChart = ({ comparisonData }) => {
+    console.log('ComparisonChart component rendered'); // Debugging log
+    console.log('ComparisonChart received data:', comparisonData); // Debugging log
+
+    const data = {
+        labels: comparisonData.map(entry => entry.date),
+        datasets: [
+            {
+                label: 'Actual Close',
+                data: comparisonData.map(entry => entry.actualClose),
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: false,
+            },
+            {
+                label: 'Predicted Close',
+                data: comparisonData.map(entry => entry.predictedClose),
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: false,
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'day',
+                },
+            },
+            y: {
+                beginAtZero: false,
+            },
+        },
+    };
+
+    return <Line data={data} options={options} />;
 };
 
 const StockComparison = () => {
@@ -47,7 +94,8 @@ const StockComparison = () => {
     const [rsiData, setRsiData] = useState([]);
     const [ratingData, setRatingData] = useState([]);
     const [prediction, setPrediction] = useState(null);
-    
+    const [comparisonData, setComparisonData] = useState(null); // Initialize comparisonData with null
+
     const fetchData = async () => {
         if (!symbol) {
             alert('Please enter a stock symbol');
@@ -55,17 +103,27 @@ const StockComparison = () => {
         }
 
         try {
-            const priceData = await fetchStockData(symbol);
-            const emaData = await fetchIndicatorData(symbol, 'ema');
-            const rsiData = await fetchIndicatorData(symbol, 'rsi');
-            const ratingData = await fetchHistoricalRating(symbol);
+            const priceData = await fetchStock(symbol);
+            // const emaData = await fetchIndicatorData(symbol, 'ema');
+            // const rsiData = await fetchIndicatorData(symbol, 'rsi');
+            // const ratingData = await fetchHistoricalRating(symbol);
             const prediction = await fetchPrediction(symbol);
+
+            console.log('Fetched Price Data:', priceData); // Debugging step
+            console.log('Fetched Prediction Data:', prediction); // Debugging step
+
+            if (prediction) {
+                console.log('Prediction Data:', prediction);
+                console.log('Prediction Properties:', Object.keys(prediction)); // Log the properties of prediction
+                console.log('Comparison Data:', prediction.comparison); // Log the comparison property
+            }
 
             setPriceData(priceData);
             setEmaData(emaData);
             setRsiData(rsiData);
             setRatingData(ratingData);
             setPrediction(prediction);
+            setComparisonData(prediction?.forecast || []); // Ensure comparisonData is an array
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -74,6 +132,7 @@ const StockComparison = () => {
     return (
         <TooltipProvider>
             <div className="container">
+                <h1>Stock Forecasting</h1>
                 <div className="input-container">
                     <input
                         type="text"
@@ -88,48 +147,89 @@ const StockComparison = () => {
                     <h3>Recommendation: {prediction.recommendation}</h3>
                 </div>
                 )}
-                <div className="chart-wrapper">
-                    <div className="chart-container">
-                        <h4>Stock Price</h4>
-                        <StockChart canvasId="priceChart" datasets={[{
-                            label: 'Stock Price',
-                            data: priceData,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            fill: false,
-                        }]} className="chart" />
+                <div className="main-content">
+                    <div className="side-content">
+                        <div className="table-container scrollable-table">
+                            <h4>Stock Data Table</h4>
+                            {priceData.length > 0 ? (
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Open</th>
+                                            <th>High</th>
+                                            <th>Low</th>
+                                            <th>Close</th>
+                                            <th>Volume</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {priceData.map((entry, index) => (
+                                            <tr key={index}>
+                                                <td>{entry.date}</td>
+                                                <td>{entry.open}</td>
+                                                <td>{entry.high}</td>
+                                                <td>{entry.low}</td>
+                                                <td>{entry.close}</td>
+                                                <td>{entry.volume}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p>No data available</p>
+                            )}
+                        </div>
                     </div>
-                    <div className="chart-container">
-                        <h4>EMA</h4>
-                        <StockChart canvasId="emaChart" datasets={[{
-                            label: 'EMA',
-                            data: emaData,
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            fill: false,
-                        }]} className="chart" />
+                    <div className="center-content">
+                        <div className="chart-container">
+                            <h4>Stock Price</h4>
+                            <StockChart canvasId="priceChart" datasets={[
+                                {
+                                    label: 'Stock Price',
+                                    data: priceData.map(entry => ({ x: entry.date, y: entry.close })),
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    fill: false,
+                                },
+                                {
+                                    label: 'Predicted Close',
+                                    data: prediction?.forecast.map(entry => ({ x: entry.date, y: entry.forecastedClose })) || [],
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    fill: false,
+                                }
+                            ]} className="chart" />
+                        </div>
                     </div>
-                </div>
-                <div className="chart-wrapper">
-                    <div className="chart-container">
-                        <h4>RSI</h4>
-                        <StockChart canvasId="rsiChart" datasets={[{
-                            label: 'RSI',
-                            data: rsiData,
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            fill: false,
-                        }]} className="chart" />
-                    </div>
-                    <div className="chart-container">
-                        <h4>Historical Rating</h4>
-                        <StockChart canvasId="ratingChart" datasets={[{
-                            label: 'Rating Score',
-                            data: ratingData,
-                            borderColor: 'rgba(255, 206, 86, 1)',
-                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                            fill: false,
-                        }]} className="chart" />
+                    <div className="side-content">
+                        <div className="table-container scrollable-table">
+                            <h4>Future Stock Prediction Table</h4>
+                            {prediction && prediction.forecast && prediction.forecast.length > 0 ? (
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Forecasted Close</th>
+                                            <th>Lower Bound Close</th>
+                                            <th>Upper Bound Close</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {prediction.forecast.map((entry, index) => (
+                                            <tr key={index}>
+                                                <td>{entry.date}</td>
+                                                <td>{entry.forecastedClose}</td>
+                                                <td>{entry.lowerBoundClose}</td>
+                                                <td>{entry.upperBoundClose}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p>No data available</p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

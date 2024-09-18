@@ -1,26 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "/workspaces/RecommendStock/StockPredictionAPI/StockPredictionAPI.csproj": {}
+    "C:\\Users\\ManojKumarMarru\\source\\repos\\RecommendStock\\StockPredictionAPI\\StockPredictionAPI.csproj": {}
   },
   "projects": {
-    "/workspaces/RecommendStock/StockPredictionAPI/StockPredictionAPI.csproj": {
+    "C:\\Users\\ManojKumarMarru\\source\\repos\\RecommendStock\\StockPredictionAPI\\StockPredictionAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/workspaces/RecommendStock/StockPredictionAPI/StockPredictionAPI.csproj",
+        "projectUniqueName": "C:\\Users\\ManojKumarMarru\\source\\repos\\RecommendStock\\StockPredictionAPI\\StockPredictionAPI.csproj",
         "projectName": "StockPredictionAPI",
-        "projectPath": "/workspaces/RecommendStock/StockPredictionAPI/StockPredictionAPI.csproj",
-        "packagesPath": "/home/codespace/.nuget/packages/",
-        "outputPath": "/workspaces/RecommendStock/StockPredictionAPI/obj/",
+        "projectPath": "C:\\Users\\ManojKumarMarru\\source\\repos\\RecommendStock\\StockPredictionAPI\\StockPredictionAPI.csproj",
+        "packagesPath": "C:\\Users\\ManojKumarMarru\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\ManojKumarMarru\\source\\repos\\RecommendStock\\StockPredictionAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/codespace/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\ManojKumarMarru\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {}
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.pkg.github.com/Intelliflo/index.json": {}
         },
         "frameworks": {
           "net8.0": {
@@ -55,6 +59,14 @@
               "target": "Package",
               "version": "[3.0.1, )"
             },
+            "Microsoft.ML.FastTree": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
+            "Microsoft.ML.TimeSeries": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
@@ -62,6 +74,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.4.0, )"
+            },
+            "YahooFinanceApi": {
+              "target": "Package",
+              "version": "[2.3.3, )"
             }
           },
           "imports": [
@@ -83,7 +99,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.401/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

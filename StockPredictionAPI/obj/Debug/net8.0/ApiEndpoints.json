@@ -1,0 +1,18 @@
+[
+  {
+    "ContainingType": "StockPredictionController",
+    "Method": "GetStockPrediction",
+    "RelativePath": "api/StockPrediction/{symbol}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "symbol",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

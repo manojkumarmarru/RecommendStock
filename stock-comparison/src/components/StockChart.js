@@ -1,4 +1,3 @@
-// src/components/StockChart.js
 import React, { useContext, useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
 import zoomPlugin from 'chartjs-plugin-zoom';
