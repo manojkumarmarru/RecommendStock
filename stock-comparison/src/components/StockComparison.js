@@ -204,7 +204,7 @@ const StockComparison = () => {
                     </div>
                     <div className="side-content">
                         <div className="table-container scrollable-table">
-                            <h4>Future Stock Prediction Table</h4>
+                            <h4>Stock Prediction Table</h4>
                             {prediction && prediction.forecast && prediction.forecast.length > 0 ? (
                                 <table>
                                     <thead>
@@ -216,14 +216,22 @@ const StockComparison = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {prediction.forecast.map((entry, index) => (
-                                            <tr key={index}>
-                                                <td>{entry.date}</td>
-                                                <td>{entry.forecastedClose}</td>
-                                                <td>{entry.lowerBoundClose}</td>
-                                                <td>{entry.upperBoundClose}</td>
-                                            </tr>
-                                        ))}
+                                        {prediction.forecast
+                                            .filter(entry => {
+                                                const entryDate = new Date(entry.date);
+                                                const today = new Date();
+                                                today.setHours(0, 0, 0, 0);
+                                                return entryDate >= today;
+                                            })
+                                            .sort((a, b) => new Date(a.date) - new Date(b.date)) 
+                                            .map((entry, index) => (
+                                                <tr key={index}>
+                                                    <td>{entry.date}</td>
+                                                    <td>{entry.forecastedClose}</td>
+                                                    <td>{entry.lowerBoundClose}</td>
+                                                    <td>{entry.upperBoundClose}</td>
+                                                </tr>
+                                            ))}
                                     </tbody>
                                 </table>
                             ) : (
