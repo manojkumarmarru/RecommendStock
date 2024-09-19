@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 [ApiController]
 public class StockPredictionController : ControllerBase
 {
-    private const string apiKey = "jZ3KwctIb3G2e8zK4OTShjr5UpW3S53G";
+    private const string apiKey = "fdBhj6FJhbAKaYyTh5fU3pwUvPY5X32E";
     private const string alphaVantageApiKey = "V1DPYCL9VMBKG1SJ";
     private readonly HttpClient _httpClient;
     private readonly MLContext mlContext;
@@ -44,6 +44,7 @@ public class StockPredictionController : ControllerBase
             Volume = h.Volume
         }).ToList();
         var dataView = mlContext.Data.LoadFromEnumerable(data);
+
         // Define forecasting pipeline
         var forecastingPipeline = mlContext.Forecasting.ForecastBySsa(
             outputColumnName: "ForecastedClose",
@@ -55,6 +56,7 @@ public class StockPredictionController : ControllerBase
             confidenceLevel: 0.95f,
             confidenceLowerBoundColumn: "LowerBoundClose",
             confidenceUpperBoundColumn: "UpperBoundClose");
+
         // Train the model
         var model = forecastingPipeline.Fit(dataView);
         // Create prediction engine
@@ -73,7 +75,6 @@ public class StockPredictionController : ControllerBase
                 UpperBoundClose = forecast.UpperBoundClose[i]
             });
         }
-         // Sort the forecasted data in descending order by date
             forecastedData = forecastedData.OrderByDescending(f => f.Date).ToList();
         return Ok(new { Symbol = symbol, Forecast = forecastedData });
     }

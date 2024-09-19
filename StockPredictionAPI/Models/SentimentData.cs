@@ -10,6 +10,6 @@ namespace StockPredictionAPI.Models
 
         [JsonProperty("sentimentScore")]
         public float SentimentScore { get; set; }
-        public float Sentiment { get; set; } // Add this property
+        public float Sentiment { get; set; }
     }
 }

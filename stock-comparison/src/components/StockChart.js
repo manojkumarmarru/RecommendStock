@@ -32,9 +32,9 @@ const StockChart = ({ canvasId, datasets }) => {
                         type: 'time',
                         time: {
                             unit: 'day',
-                            tooltipFormat: 'PP', // Display full date in tooltip
+                            tooltipFormat: 'PP', 
                             displayFormats: {
-                                day: 'MMM d, yyyy' // Display date and year on x-axis
+                                day: 'MMM d, yyyy'
                             }
                         },
                         title: {

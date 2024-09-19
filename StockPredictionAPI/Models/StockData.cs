@@ -9,9 +9,9 @@ namespace StockPredictionAPI.Models
         public float Low { get; set; }
         public float Close { get; set; }
         public float Volume { get; set; }
-        public float EMA { get; set; } // Add this property
-        public float SMA { get; set; } // Add this property
-        public float RSI { get; set; } // Add this property
-        public float Sentiment { get; set; } // Add this property
+        public float EMA { get; set; } 
+        public float SMA { get; set; } 
+        public float RSI { get; set; } 
+        public float Sentiment { get; set; } 
     }
 }
