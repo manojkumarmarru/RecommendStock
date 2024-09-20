@@ -8,6 +8,7 @@ namespace StockPredictionAPI.Models
         public float High { get; set; }
         public float Low { get; set; }
         public float Close { get; set; }
+        public float AdjClose { get; set; }
         public float Volume { get; set; }
     }
 }

@@ -1,14 +1,25 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Chart, registerables } from 'chart.js';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import 'chartjs-adapter-date-fns';
 import { TooltipContext } from './TooltipContext';
+import '../Styles/StockChart.css'; // Import the CSS file
 
 Chart.register(...registerables, zoomPlugin);
+
+const timeRanges = {
+    '1M': 30,
+    '3M': 30 * 3,
+    '6M': 30 * 6,
+    '1Y': 365,
+    '3Y': 365 * 3,
+    '5Y': 365 * 5
+};
 
 const StockChart = ({ canvasId, datasets }) => {
     const chartRef = useRef(null);
     const { tooltipData, setTooltipData } = useContext(TooltipContext);
+    const [selectedRange, setSelectedRange] = useState('1Y');
 
     useEffect(() => {
         const ctx = document.getElementById(canvasId).getContext('2d');
@@ -32,7 +43,7 @@ const StockChart = ({ canvasId, datasets }) => {
                         type: 'time',
                         time: {
                             unit: 'day',
-                            tooltipFormat: 'PP', 
+                            tooltipFormat: 'PP',
                             displayFormats: {
                                 day: 'MMM d, yyyy'
                             }
@@ -106,24 +117,36 @@ const StockChart = ({ canvasId, datasets }) => {
     }, [canvasId, datasets, setTooltipData]);
 
     useEffect(() => {
-        if (chartRef.current && tooltipData) {
-            const { date, tooltipInfo } = tooltipData;
-            const dateIndex = chartRef.current.data.labels.findIndex(label => label === date);
-            if (dateIndex !== -1) {
-                const tooltip = chartRef.current.tooltip;
-                tooltip.setActiveElements(
-                    tooltipInfo.map((info, index) => ({
-                        datasetIndex: index,
-                        index: dateIndex
-                    })),
-                    { x: 0, y: 0 }
-                );
-                chartRef.current.update();
-            }
-        }
-    }, [tooltipData]);
+        if (chartRef.current) {
+            const now = new Date();
+            const pastDate = new Date(now);
+            pastDate.setDate(now.getDate() - timeRanges[selectedRange]);
 
-    return <canvas id={canvasId}></canvas>;
+            chartRef.current.options.scales.x.min = pastDate;
+            chartRef.current.options.scales.x.max = now;
+            chartRef.current.update();
+        }
+    }, [selectedRange]);
+
+    return (
+        <div className="chart-container">
+            <div className="chart-header">
+                <h4>Stock Price Comparison</h4>
+                <div className="time-range-buttons">
+                    {Object.keys(timeRanges).map(range => (
+                        <button
+                            key={range}
+                            onClick={() => setSelectedRange(range)}
+                            className={selectedRange === range ? 'active' : ''}
+                        >
+                            {range}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <canvas id={canvasId}></canvas>
+        </div>
+    );
 };
 
 export default StockChart;

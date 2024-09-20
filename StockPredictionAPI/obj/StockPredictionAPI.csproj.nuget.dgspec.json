@@ -71,6 +71,10 @@
               "target": "Package",
               "version": "[13.0.3, )"
             },
+            "NumSharp": {
+              "target": "Package",
+              "version": "[0.30.0, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.4.0, )"

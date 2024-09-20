@@ -351,6 +351,22 @@
           "lib/net6.0/Newtonsoft.Json.dll": {}
         }
       },
+      "NumSharp/0.30.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Memory": "4.5.4"
+        },
+        "compile": {
+          "lib/netstandard2.0/NumSharp.dll": {
+            "related": ".pdb"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/NumSharp.dll": {
+            "related": ".pdb"
+          }
+        }
+      },
       "Swashbuckle.AspNetCore/6.4.0": {
         "type": "package",
         "dependencies": {
@@ -1120,6 +1136,20 @@
         "packageIcon.png"
       ]
     },
+    "NumSharp/0.30.0": {
+      "sha512": "1f8m2B/m/ZSsICaqLszspCyA9/sTHK7wBKEH5KsxGg/r3QCYTc2HnfYOGMeCytvo8/j0v/umn5umLOLhdExlFA==",
+      "type": "package",
+      "path": "numsharp/0.30.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "lib/netstandard2.0/NumSharp.dll",
+        "lib/netstandard2.0/NumSharp.pdb",
+        "numsharp.0.30.0.nupkg.sha512",
+        "numsharp.nuspec"
+      ]
+    },
     "Swashbuckle.AspNetCore/6.4.0": {
       "sha512": "eUBr4TW0up6oKDA5Xwkul289uqSMgY0xGN4pnbOIBqCcN9VKGGaPvHX3vWaG/hvocfGDP+MGzMA0bBBKz2fkmQ==",
       "type": "package",
@@ -1681,6 +1711,7 @@
       "Microsoft.ML.FastTree >= 3.0.1",
       "Microsoft.ML.TimeSeries >= 3.0.1",
       "Newtonsoft.Json >= 13.0.3",
+      "NumSharp >= 0.30.0",
       "Swashbuckle.AspNetCore >= 6.4.0",
       "YahooFinanceApi >= 2.3.3"
     ]
@@ -1754,6 +1785,10 @@
           "Newtonsoft.Json": {
             "target": "Package",
             "version": "[13.0.3, )"
+          },
+          "NumSharp": {
+            "target": "Package",
+            "version": "[0.30.0, )"
           },
           "Swashbuckle.AspNetCore": {
             "target": "Package",

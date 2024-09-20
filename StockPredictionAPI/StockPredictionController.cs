@@ -25,7 +25,7 @@ public class StockPredictionController : ControllerBase
         mlContext = new MLContext();
     }
     [HttpGet("{symbol}")]
-    public async Task<IActionResult> GetStockPrediction(string symbol, int years = 7)
+    public async Task<IActionResult> GetStockPrediction(string symbol, int years = 5)
     {
         // Load historical data
         var historicalData = await LoadHistoricalData(symbol);

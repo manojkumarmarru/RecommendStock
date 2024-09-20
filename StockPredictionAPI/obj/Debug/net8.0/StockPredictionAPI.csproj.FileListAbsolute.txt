@@ -126,3 +126,4 @@ C:\Users\ManojKumarMarru\source\repos\RecommendStock\StockPredictionAPI\bin\Debu
 C:\Users\ManojKumarMarru\source\repos\RecommendStock\StockPredictionAPI\bin\Debug\net8.0\Flurl.dll
 C:\Users\ManojKumarMarru\source\repos\RecommendStock\StockPredictionAPI\bin\Debug\net8.0\Flurl.Http.dll
 C:\Users\ManojKumarMarru\source\repos\RecommendStock\StockPredictionAPI\bin\Debug\net8.0\YahooFinanceApi.dll
+C:\Users\ManojKumarMarru\source\repos\RecommendStock\StockPredictionAPI\bin\Debug\net8.0\NumSharp.dll

@@ -1,0 +1,43 @@
+.chart-container {
+    position: relative;
+    width: calc(100% - 40px); /* Adjust width to account for padding */
+    height: calc(50% - 20px); /* Adjust height to account for padding */
+    padding-left: 20px; /* Add padding to create space inside the container */
+    padding-right: 20px; /* Add padding to create space inside the container */
+    box-sizing: border-box;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.time-range-buttons {
+    display: flex;
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.time-range-buttons button {
+    padding: 3px 6px;
+    cursor: pointer;
+    border: 1px solid #007bff;
+    background-color: white;
+    color: #007bff;
+    border-radius: 3px;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 10px; /* Smaller font size */
+}
+
+.time-range-buttons button:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.time-range-buttons button.active {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
