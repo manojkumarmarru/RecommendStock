@@ -16,18 +16,17 @@ const timeRanges = {
     '5Y': 365 * 5
 };
 
-const StockChart = ({ canvasId, datasets }) => {
+const StockChart = ({ title, canvasId, datasets }) => {
     const chartRef = useRef(null);
     const { tooltipData, setTooltipData } = useContext(TooltipContext);
-    const [selectedRange, setSelectedRange] = useState('1Y');
+    const [selectedRange, setSelectedRange] = useState('6M');
 
     useEffect(() => {
-        const ctx = document.getElementById(canvasId).getContext('2d');
-
+        
         if (chartRef.current) {
             chartRef.current.destroy();
         }
-
+        const ctx = document.getElementById(canvasId).getContext('2d');
         chartRef.current = new Chart(ctx, {
             type: 'line',
             data: {
@@ -118,20 +117,24 @@ const StockChart = ({ canvasId, datasets }) => {
 
     useEffect(() => {
         if (chartRef.current) {
+            const allDates = datasets.flatMap(dataset => dataset.data.map(dataPoint => new Date(dataPoint.x)));
+            const minDate = new Date(Math.min(...allDates));
+            const maxDate = new Date(Math.max(...allDates));
+
             const now = new Date();
             const pastDate = new Date(now);
             pastDate.setDate(now.getDate() - timeRanges[selectedRange]);
 
-            chartRef.current.options.scales.x.min = pastDate;
-            chartRef.current.options.scales.x.max = now;
+            chartRef.current.options.scales.x.min = pastDate < minDate ? minDate : pastDate;
+            chartRef.current.options.scales.x.max = maxDate;
             chartRef.current.update();
         }
-    }, [selectedRange]);
+    }, [datasets, selectedRange]);
 
     return (
         <div className="chart-container">
             <div className="chart-header">
-                <h4>Stock Price Comparison</h4>
+                <h4>{title}</h4>
                 <div className="time-range-buttons">
                     {Object.keys(timeRanges).map(range => (
                         <button

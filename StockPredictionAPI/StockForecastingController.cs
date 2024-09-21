@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.ML;
 using Newtonsoft.Json;
 using NumSharp;
+using NumSharp.Utilities;
 using StockPredictionAPI.Models;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 [ApiController]
 public class LSTMStockPredictionController : ControllerBase
 {
-    const string apiKey = "fdBhj6FJhbAKaYyTh5fU3pwUvPY5X32E";
+    const string apiKey = "jZ3KwctIb3G2e8zK4OTShjr5UpW3S53G";
     private const string vantageApiKey = "V1DPYCL9VMBKG1SJ";
     private readonly HttpClient _httpClient;
     private readonly MLContext mlContext;
@@ -118,19 +119,28 @@ public class LSTMStockPredictionController : ControllerBase
             }
         }
 
-        // Check if the file exists before loading
-        var filePath = "C:\\Users\\ManojKumarMarru\\source\\repos\\RecommendStock\\StockPredictionAPI\\python\\y_pred.npy";
-        if (!System.IO.File.Exists(filePath))
+        // Load the combined dates and predictions from the Python script
+        var datesFilePath = "C:\\Users\\ManojKumarMarru\\source\\repos\\RecommendStock\\StockPredictionAPI\\python\\dates.txt";
+        var predictionsFilePath = "C:\\Users\\ManojKumarMarru\\source\\repos\\RecommendStock\\StockPredictionAPI\\python\\combined_predictions.npy";
+
+        if (!System.IO.File.Exists(datesFilePath) || !System.IO.File.Exists(predictionsFilePath))
         {
-            return StatusCode(500, "Prediction file not found.");
+            return StatusCode(500, "Dates or predictions file not found.");
         }
 
-        // Load the forecasted data from the Python script
-        var forecastedAdjCloseSlice = np.load(filePath).GetData<float>();
+        var dates = System.IO.File.ReadAllLines(datesFilePath);
 
-        // Convert ArraySlice<float> to float[]
-        var forecastedAdjClose = forecastedAdjCloseSlice.ToArray();
+        var predictionsSlice = np.load(predictionsFilePath).GetData<float>();
+        var predictions = predictionsSlice.ToArray();
 
+        // Ensure the dates match the forecasted data
+        var forecastedDataWithLstm = predictions.Select((value, index) => new
+        {
+            ForecastedClose = value,
+            Date = dates[index]
+        }).ToArray();
+
+        var forecastedAdjClose = predictions;
         // Print forecasted data for verification
         Console.WriteLine("Forecasted Data:", forecastedAdjClose);
 
@@ -146,13 +156,25 @@ public class LSTMStockPredictionController : ControllerBase
             RootMeanSquaredError = rmse
         };
 
+        var trainDataRange = new {
+            startDate = trainDataEnumerable.Min(d => d.Date).ToString("yyyy-MM-dd"),
+            endDate = trainDataEnumerable.Max(d => d.Date).ToString("yyyy-MM-dd")
+        };
+
+        var testDataRange = new {
+            startDate = testDataEnumerable.Min(d => d.Date).ToString("yyyy-MM-dd"),
+            endDate = testDataEnumerable.Max(d => d.Date).ToString("yyyy-MM-dd")
+        };
+
         // Prepare the result
         var resultData = new
         {
             Symbol = symbol,
             TrueAdjClose = data.Select(d => new { d.Date, d.AdjClose }),
-            ForecastedAdjClose = forecastedAdjClose,
-            Metrics = metrics
+            ForecastedAdjClose = forecastedDataWithLstm.Select(d => new { d.Date, d.ForecastedClose }),
+            Metrics = metrics,
+            trainDataRange,
+            testDataRange
         };
 
         return Ok(resultData);
@@ -185,7 +207,7 @@ public class LSTMStockPredictionController : ControllerBase
     private double CalculateMAE(float[] predictions, float[] actuals)
     {
         double sum = 0;
-        for (int i = 0; i < predictions.Length; i++)
+        for (int i = 0; i < predictions.Length && i < actuals.Length; i++)
         {
             sum += Math.Abs(predictions[i] - actuals[i]);
         }
@@ -195,7 +217,7 @@ public class LSTMStockPredictionController : ControllerBase
     private double CalculateRMSE(float[] predictions, float[] actuals)
     {
         double sum = 0;
-        for (int i = 0; i < predictions.Length; i++)
+        for (int i = 0; i < predictions.Length && i < actuals.Length; i++)
         {
             sum += Math.Pow(predictions[i] - actuals[i], 2);
         }

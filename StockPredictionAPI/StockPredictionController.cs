@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 [ApiController]
 public class StockPredictionController : ControllerBase
 {
-    private const string apiKey = "fdBhj6FJhbAKaYyTh5fU3pwUvPY5X32E";
+    private const string apiKey = "jZ3KwctIb3G2e8zK4OTShjr5UpW3S53G";
     private const string alphaVantageApiKey = "V1DPYCL9VMBKG1SJ";
     private readonly HttpClient _httpClient;
     private readonly MLContext mlContext;
@@ -25,7 +25,7 @@ public class StockPredictionController : ControllerBase
         mlContext = new MLContext();
     }
     [HttpGet("{symbol}")]
-    public async Task<IActionResult> GetStockPrediction(string symbol, int years = 5)
+    public async Task<IActionResult> GetStockPrediction(string symbol)
     {
         // Load historical data
         var historicalData = await LoadHistoricalData(symbol);
@@ -52,7 +52,7 @@ public class StockPredictionController : ControllerBase
             windowSize: 30,
             seriesLength: data.Count,
             trainSize: data.Count,
-            horizon: years * 365,
+            horizon: 1900,
             confidenceLevel: 0.95f,
             confidenceLowerBoundColumn: "LowerBoundClose",
             confidenceUpperBoundColumn: "UpperBoundClose");
