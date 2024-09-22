@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 [ApiController]
 public class StockPredictionController : ControllerBase
 {
-    private const string apiKey = "jZ3KwctIb3G2e8zK4OTShjr5UpW3S53G";
+    private const string apiKey = "fdBhj6FJhbAKaYyTh5fU3pwUvPY5X32E";
     private const string alphaVantageApiKey = "V1DPYCL9VMBKG1SJ";
     private readonly HttpClient _httpClient;
     private readonly MLContext mlContext;
@@ -52,7 +52,7 @@ public class StockPredictionController : ControllerBase
             windowSize: 30,
             seriesLength: data.Count,
             trainSize: data.Count,
-            horizon: 1900,
+            horizon: 1926,
             confidenceLevel: 0.95f,
             confidenceLowerBoundColumn: "LowerBoundClose",
             confidenceUpperBoundColumn: "UpperBoundClose");

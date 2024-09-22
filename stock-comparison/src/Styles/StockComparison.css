@@ -42,7 +42,7 @@
 .side-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: left;
     background: #f9f9f9;
     padding: 10px;
     border-radius: 8px;

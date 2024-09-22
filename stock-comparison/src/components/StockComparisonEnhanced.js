@@ -5,7 +5,7 @@ import { TooltipProvider } from './TooltipContext';
 import 'chart.js/auto';
 import '../Styles/StockComparison.css';
 
-const apiKey = 'jZ3KwctIb3G2e8zK4OTShjr5UpW3S53G';
+const apiKey = 'fdBhj6FJhbAKaYyTh5fU3pwUvPY5X32E';
 
 const fetchStock = async (symbol) => {
     const response = await axios.get(`https://financialmodelingprep.com/api/v3/historical-price-full/${symbol}?apikey=${apiKey}`);
@@ -49,8 +49,19 @@ const fetchMLPrediction = async (symbol) => {
     return response.data;
 };
 
+const fetchStockDetails = async (symbol) => {
+        const response = await axios.get(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${apiKey}`);
+        return response.data[0];
+};
+
+const fetchNewsSentiment = async (symbol) => {
+    const response = await axios.get(`https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${symbol}&apikey=${apiKey}`);
+    return response.data;
+};
+
 const StockComparisonEnhanced = () => {
     const [symbol, setSymbol] = useState('');
+    const [stockDetails, setStockDetails] = useState(null);
     const [priceData, setPriceData] = useState([]);
     const [emaData, setEmaData] = useState([]);
     const [rsiData, setRsiData] = useState([]);
@@ -58,12 +69,11 @@ const StockComparisonEnhanced = () => {
     const [lstmpredictionData, setLSTMPredictionData] = useState(null);
     const [mlpredictionData, setMLPredictionData] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [recommendation, setRecommendation] = useState("");
+    const [newsSentiment, setNewsSentiment] = useState(null);
+    const [recommendationFontColor, setRecommendationFontColor] = useState("black");
 
-    const handleInputChange = (event) => {
-        setSymbol(event.target.value);
-    };
-
-    const fetchData = async () => {
+    const fetchData = async (symbol) => {
         if (!symbol) {
             alert('Please enter a stock symbol');
             return;
@@ -71,10 +81,14 @@ const StockComparisonEnhanced = () => {
 
         setPriceData([]);
         setEmaData([]);
+        setStockDetails(null);
         setRsiData([]);
         setRatingData([]);
         setLSTMPredictionData(null);
         setMLPredictionData(null);
+        setRecommendation("");
+        setNewsSentiment(null);
+        setRecommendationFontColor("black");
         setLoading(true);
         try {
             const priceData = await fetchStock(symbol);
@@ -83,6 +97,20 @@ const StockComparisonEnhanced = () => {
             let emaData = await fetchIndicatorData(symbol, "ema");
             let rsiData = await fetchIndicatorData(symbol, "rsi");
             let ratingData = await fetchHistoricalRating(symbol);
+            let stockDetails = await fetchStockDetails(symbol);
+            let newsSentiment = await fetchNewsSentiment(symbol);
+            let recommendation = ratingData[0]?.recommendation;
+            let recommendationFontColor = "black";
+            if(recommendation === "Buy"){
+                recommendationFontColor = "blue";
+            }
+            else if(recommendation === "Neutral"){
+                recommendation = "Hold";
+                recommendationFontColor = "green";
+            }
+            else if(recommendation === "Sell"){
+                recommendationFontColor = "red";
+            }
             // Calculate the date 1825 days before today
             const cutoffDate = new Date();
             cutoffDate.setDate(cutoffDate.getDate() - 1825);
@@ -91,11 +119,14 @@ const StockComparisonEnhanced = () => {
             emaData = emaData.filter(entry => new Date(entry.x) >= cutoffDate).sort((a, b) => new Date(a.x) - new Date(b.x));;
             rsiData = rsiData.filter(entry => new Date(entry.x) >= cutoffDate).sort((a, b) => new Date(a.x) - new Date(b.x));;
             ratingData = ratingData.filter(entry => new Date(entry.x) >= cutoffDate).sort((a, b) => new Date(a.x) - new Date(b.x));;
-
             setPriceData(priceData);
             setEmaData(emaData);
             setRsiData(rsiData);
             setRatingData(ratingData);
+            setStockDetails(stockDetails);
+            setRecommendation(recommendation);
+            setNewsSentiment(newsSentiment);
+            setRecommendationFontColor(recommendationFontColor);
             setLSTMPredictionData(lstmpredictionData);
             setMLPredictionData(mlpredictionData);
             console.log('LSTM Prediction:', lstmpredictionData);
@@ -112,24 +143,48 @@ const StockComparisonEnhanced = () => {
             <div className="container">
             <div className="main-content">
                 <div className="side-content">
-                    
+                    <div>
+                        {stockDetails && (
+                            <div>
+                                <p style ={{fontSize:"20px"}}>
+                                <b>{stockDetails.name}
+                                <span>({stockDetails.symbol})</span></b>
+                                </p>
+                                <span style ={{fontSize:"48px"}}><b>{stockDetails.price} </b></span>
+                                <span>{stockDetails.changesPercentage >= 0 ? <span style={{color:"green"}} >{'\u25B2'}</span> : <span style={{color:"red"}}>{'\u25BC'}</span>}</span>
+                                <span style={{color:"green"}}><b>{stockDetails.changesPercentage}% </b></span>
+                                <span style={{color:"green"}}>({stockDetails.change})</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
-                <div className="side-content">
+                <div>
                 <h1 style={{textAlign:"center"}}>Stock Forecasting</h1>
-                    <div style={{paddingLeft : "100px", justifyContent:'center'}}>
+                    <div style={{marginLeft: "180px", justifyContent:'center'}}>
                         <input
                             type="text"
-                            value={symbol}
-                            onChange={handleInputChange}
+                            id="stockSymbolInput"
                             placeholder="Enter Stock Symbol"
                         />
-                        <button style={{marginLeft : "10px"}} onClick={fetchData}>Submit</button>
-                        {loading ? (
-                            <span className="loading ml-5">Loading...</span>
-                        ) : ( <></>)}
+                        <button style={{marginLeft : "10px"}} onClick={() => {
+                                const symbol = document.getElementById('stockSymbolInput').value;
+                                fetchData(symbol);
+                            }}>Submit</button>
+                        <div>
+                            Stock Recommendation : 
+                            {loading ? (
+                                <span className="loading ml-5">Loading...</span>
+                            ) : ( <span style={{fontColor : recommendationFontColor}}><b>{recommendation}</b></span>)}
+                        </div>
+                        {newsSentiment && (
+                            <div>
+                                <p>News Sentiment: <b>{newsSentiment.feed[0].overall_sentiment_label}({newsSentiment.feed[0].overall_sentiment_score}</b>)</p>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="side-content">
+                    { lstmpredictionData && (
                     <div className="metrics-container">
                         <h3>LSTM Model Performance Metrics</h3>
                         <div>Train data : {lstmpredictionData?.trainDataRange.startDate} to {lstmpredictionData?.trainDataRange.endDate}</div>
@@ -137,6 +192,7 @@ const StockComparisonEnhanced = () => {
                         <div>Mean Absolute Error (MAE): {lstmpredictionData?.metrics.meanAbsoluteError.toFixed(2)}</div>
                         <div>Root Mean Squared Error (RMSE): {lstmpredictionData?.metrics.rootMeanSquaredError.toFixed(2)}</div>
                     </div>
+                    )}
                 </div>
             </div>
                 <>
@@ -172,7 +228,7 @@ const StockComparisonEnhanced = () => {
                                 )}
                             </div>
                         </div>
-                        <div className='part-content'>
+                        <div className='side-content'>
                             <div className="chart-container">
                                 <StockChart title = "Stock Price comparison" canvasId="priceChart" datasets={[
                                     {

@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 [ApiController]
 public class LSTMStockPredictionController : ControllerBase
 {
-    const string apiKey = "jZ3KwctIb3G2e8zK4OTShjr5UpW3S53G";
+    const string apiKey = "fdBhj6FJhbAKaYyTh5fU3pwUvPY5X32E";
     private const string vantageApiKey = "V1DPYCL9VMBKG1SJ";
     private readonly HttpClient _httpClient;
     private readonly MLContext mlContext;
@@ -133,12 +133,48 @@ public class LSTMStockPredictionController : ControllerBase
         var predictionsSlice = np.load(predictionsFilePath).GetData<float>();
         var predictions = predictionsSlice.ToArray();
 
-        // Ensure the dates match the forecasted data
-        var forecastedDataWithLstm = predictions.Select((value, index) => new
+        // Extract dates from historical data
+        var historicalDates = sortedData.Select(d => d.Date).ToList();
+
+        // Find the initial historicalIndex based on startDate
+        int historicalIndex = historicalDates.FindIndex(date => date >= DateTime.Parse(startDate));
+        if (historicalIndex == -1)
         {
-            ForecastedClose = value,
-            Date = dates[index]
-        }).ToArray();
+            historicalIndex = historicalDates.Count; // If no date is found, start from the end of historical data
+        }
+
+        // Assign dates to predictions
+        var forecastedDataWithLstm = new List<dynamic>();
+        DateTime currentDate = DateTime.Today;
+
+        foreach (var prediction in predictions)
+        {
+            // Use historical dates if available
+            if (historicalIndex < historicalDates.Count && historicalDates[historicalIndex] >= DateTime.Parse(startDate))
+            {
+                forecastedDataWithLstm.Add(new
+                {
+                    ForecastedClose = prediction,
+                    Date = historicalDates[historicalIndex].ToString("yyyy-MM-dd")
+                });
+                historicalIndex++;
+            }
+            else
+            {
+                // Skip weekends
+                while (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    currentDate = currentDate.AddDays(1);
+                }
+
+                forecastedDataWithLstm.Add(new
+                {
+                    ForecastedClose = prediction,
+                    Date = currentDate.ToString("yyyy-MM-dd")
+                });
+                currentDate = currentDate.AddDays(1);
+            }
+        }
 
         var forecastedAdjClose = predictions;
         // Print forecasted data for verification
