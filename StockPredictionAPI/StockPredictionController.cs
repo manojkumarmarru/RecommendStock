@@ -52,7 +52,7 @@ public class StockPredictionController : ControllerBase
             windowSize: 30,
             seriesLength: data.Count,
             trainSize: data.Count,
-            horizon: 1926,
+            horizon: 1868,
             confidenceLevel: 0.95f,
             confidenceLowerBoundColumn: "LowerBoundClose",
             confidenceUpperBoundColumn: "UpperBoundClose");

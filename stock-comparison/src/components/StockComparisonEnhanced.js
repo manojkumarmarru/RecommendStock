@@ -98,7 +98,7 @@ const StockComparisonEnhanced = () => {
             let rsiData = await fetchIndicatorData(symbol, "rsi");
             let ratingData = await fetchHistoricalRating(symbol);
             let stockDetails = await fetchStockDetails(symbol);
-            let newsSentiment = await fetchNewsSentiment(symbol);
+            //let newsSentiment = await fetchNewsSentiment(symbol);
             let recommendation = ratingData[0]?.recommendation;
             let recommendationFontColor = "black";
             if(recommendation === "Buy"){
@@ -125,7 +125,7 @@ const StockComparisonEnhanced = () => {
             setRatingData(ratingData);
             setStockDetails(stockDetails);
             setRecommendation(recommendation);
-            setNewsSentiment(newsSentiment);
+            //setNewsSentiment(newsSentiment);
             setRecommendationFontColor(recommendationFontColor);
             setLSTMPredictionData(lstmpredictionData);
             setMLPredictionData(mlpredictionData);
